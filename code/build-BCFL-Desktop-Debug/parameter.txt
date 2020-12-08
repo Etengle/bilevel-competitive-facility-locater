@@ -1,0 +1,83 @@
+BEGIN Global
+commodityPrices
+SUPER									100
+HYPER									80
+parkingAttractions
+SUPER									0
+HYPER									1.0
+buyingPowers
+POOR									1
+MEDIUM								3
+RICH									5
+// function: a(fac, fam, week) = (1.0/(alpha*|fac-fam|+beta))*(1+w(fac,week))
+// where
+// fac: hyper = 3, super = 1
+// fam: rich = 3, medium = 2, poor = 1
+// w(*, weekday) = 0, w(super, weekend) = 1, w(hyper, weekend, weekend) = 0.6
+attractions
+SUPER POOR WEEKDAY		5
+SUPER POOR WEEKEND		10
+SUPER MEDIUM WEEKDAY	4
+SUPER MEDIUM WEEKEND	6
+SUPER RICH WEEKDAY		1
+SUPER RICH WEEKEND		2
+HYPER POOR WEEKDAY		1
+HYPER POOR WEEKEND		2
+HYPER MEDIUM WEEKDAY	5
+HYPER MEDIUM WEEKEND	7
+HYPER RICH WEEKDAY		6
+HYPER RICH WEEKEND		10
+theta										1 2 0.2 0.30					// theta 1~4
+#family									5
+vecfamilyTypes					p r r m p							// p = poor/m = median/r = rich
+vecfamilyBuyingPowers		5 4 3 6 1
+vecfamilyLocations			(0, 1) (10, 1) (0, 20) (23, 0) (-15, -11)
+END
+
+BEGIN Layer
+layerType								upper
+name										upperLayer
+marketType							hyper									// super or hyper
+gmax										5											// gmax = max convergent times
+kmax										3											// kmax = max neighborhood structure
+nss											0.1 0.25 0.3
+lmax										2											// lmax = max iteration number
+budget									532
+itmax										10										// itmax = max iteration time
+#candidatefacility			5
+vecCandidateLocations		(1, 10) (-1, 10) (5, 8) (7, -4) (15, -8)
+vecCanidateCosts				100 200 100 300 131
+#existedfacility				1
+vecExistedLocations			(5, 5)
+BEGIN tabu
+size								20
+lmax								5
+gmax								3
+cmax								50
+itmax							5
+END
+END
+
+BEGIN Layer
+layerType								lower
+name										lowerLayer
+marketType							super						// super or hyper
+gmax										4							// gmax = max convergent times
+kmax										2							// kmax = max neighborhood structure
+nss											0.1 0.2
+lmax										3							// lmax = max iteration number
+budget									442
+itmax										10										// itmax = max iteration time
+#candidatefacility			6
+vecCandidateLocations		(3, -1) (1.2, 1) (-1, 5) (-7, 8) (-1, 1) (4, 3)
+vecCanidateCosts				150 200 100 200 300 100
+#existedfacility				2
+vecExistedLocations			(-3, 5) (1, 4)
+BEGIN tabu
+size								10
+lmax								4
+gmax								2
+cmax								40
+itmax							3
+END
+END

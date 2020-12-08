@@ -1,0 +1,71 @@
+#
+# Makefile for JDP
+#
+# OA Environmental Parameters
+OA_ROOT			= $(HOME)/TSMC/oa_22.04
+OA_MODE			= dbg
+OA_BITS			= 64
+OA_RHEL			= linux_rhel40
+COMMON			= ../common
+# Mine
+MYINC			= ../include
+MYLIB           = ../lib
+MYOBJ           = ../obj
+# Compiler
+# if TSMC 
+# CXX = /twhome/dflowqc/software/gcc-4.8.2/bin/g++
+# CXX				= /usr/local/gcc-7.2.0/bin/g++
+# CXX				= g++7
+CXX				= g++
+# if you want to use debugger, add -g to CFLAGS and LDFLAGS
+CFLAGS			= -Wall -O3 -std=c++11 -fopenmp
+MEM				= 
+# MEM = -Wl,--stack,16000000000,--heap,16000000000
+INCLUDES		= -I$(MYINC) 
+# -I$(OA_ROOT)/include/oa -I$(COMMON) 
+LFLAGS			= -L$(MYLIB) 
+# -L$(OA_ROOT)/lib/$(OA_RHEL)_$(OA_BITS)/$(OA_MODE)
+LIBS			= -lm -m64 -lgurobi_c++ -lgurobi81 -lboost_system -lboost_filesystem
+# -ldl -loaDesign -loaTech -loaDM -loaPlugIn -loaBase -loaCommon
+# LIBS=-lm -lgurobi_c++ -lgurobi70 -fopenmp
+# SOURCES   		= $(COMMON)/commonTechObserver.cpp $(COMMON)/commonLibDefListObserver.cpp $(COMMON)/commonFunctions.cpp
+SOURCES			= layer.cpp parser.cpp
+MAIN			= main
+OBJECTS			= $(SOURCES:.cpp=.o) $(MAIN).o
+EXECUTABLE		= BCFL_CORE
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	@echo "===> Building $@ ..."
+	$(CXX) $(CFLAGS) $(INCLUDES) $(OBJECTS) -o $@ $(LFLAGS) $(LIBS)
+	@echo "===> $@ built successfully ..."
+	@echo ""
+
+$(COMMON)/%.o: $(COMMON)/%.cpp $(COMMON)/%.h
+	@echo "===> Compiling $< ..."
+	$(CXX) -O2 $(INCLUDES) -c $< -o $@ 
+	@echo "===> $< compiled successfully ..."
+	@echo ""
+
+$(MAIN).o: $(MAIN).cpp *.h
+	@echo "===> Compiling $< ..."
+	$(CXX) $(CFLAGS) $(MEM) $(INCLUDES) -c $< -o $@
+	@echo "===> $< compiled successfully ..."
+	@echo ""
+
+%.o:  %.cpp %.h util.h
+	@echo "===> Compiling $< ..."
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "===> $< compiled successfully ..."
+	@echo ""
+	
+clean:
+	@echo "===> Deleting *.swp *tmp* *.orig *log* *.css *.lp *.o $(COMMON)/*.o $(EXECUTABLE) ..."
+	rm -rf *.swp *tmp* *log* *.css *.orig *.lp *.o $(COMMON)/*.o $(EXECUTABLE)
+	@echo "===> *.swp *tmp* *log* *.orig *.css *.lp *.o $(COMMON)/*.o $(EXECUTABLE) deteled successfully ..."
+	@echo ""
+
+
+run: $(EXECUTABLE)
+	./$(EXECUTABLE) | tee log.txt
